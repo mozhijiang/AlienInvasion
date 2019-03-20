@@ -64,9 +64,9 @@ function StarField(speed,opacity,numStars,clear){
         offset = offset % stars.height;
     }
 }
-function TitleScreen(title,subtitle,callback){
+function TitleScreen(title,subtitle,callback,argument){
     this.step = function(){
-        if(game.keys['fire'] && callback) callback();
+        if(game.keys['fire'] && callback) callback(argument ? argument : null);
     }
     this.draw = function(context){
         context.fillStyle = "#FFFFFF";
@@ -77,12 +77,18 @@ function TitleScreen(title,subtitle,callback){
         context.fillText(subtitle,game.width/2,game.height/2 + 40);
     }
 }
-function playGame(){
+function playGame(levelIndex){
     var board = new GameBoard();
     board.add(new PlayerShip());
-    board.add(new Level(data.level1,winGame));
-
+    board.add(new Level(levelIndex ? levelIndex : 0,next));
     game.setBoard(3,board);
+}
+function next(levelIndex){
+    if(data.level[++levelIndex]){
+        game.setBoard(3,new TitleScreen("继续下一关!","按空格键继续",playGame,levelIndex));
+    }else{
+        winGame();
+    }
 }
 function winGame(){
     game.setBoard(3,new TitleScreen("你赢了!","按空格键继续",playGame));

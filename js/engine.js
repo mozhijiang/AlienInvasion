@@ -88,7 +88,6 @@ var game = new function(){
         this.canvas.style.position = "absolute";
         this.canvas.style.left = '0px';
         this.canvas.style.top = "0px";
-        log(this.canvas);
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }
@@ -185,12 +184,14 @@ Sprite.prototype.draw = function(ctx) {
 Sprite.prototype.hit = function(damage) {
     this.board.remove(this);
 };
-function Level(levelData,callback) {
+function Level(levelIndex,callback) {
     this.levelData = [];
-    for(var i =0; i<levelData.length; i++) {
-      this.levelData.push(Object.create(levelData[i]));
+    log(data.level[levelIndex]);
+    for(var i =0; i<data.level[levelIndex].length; i++) {
+      this.levelData.push(Object.create(data.level[levelIndex][i]));
     }
     this.t = 0;
+    this.levelIndex = levelIndex;
     this.callback = callback;
 };
 Level.prototype.step = function(dt) {
@@ -212,7 +213,7 @@ Level.prototype.step = function(dt) {
         if(index != -1) this.levelData.splice(index,1);
     }
     if(this.levelData.length === 0 && this.board.cnt[data.OBJECT_ENEMY] === 0) {
-        if(this.callback) this.callback();
+        if(this.callback) this.callback(this.levelIndex);
     }
   };
   Level.prototype.draw = function(context){};
