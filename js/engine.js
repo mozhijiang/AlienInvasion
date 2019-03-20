@@ -30,17 +30,20 @@ var game = new function(){
         right : false,
         bottom : false
     };
+    var mobile;
     this.initialize = function(canvasId,spriteData,callback){
         this.canvas = $(`#${canvasId}`)[0];
+        this.setupMobile();
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         this.context = this.canvas.getContext && this.canvas.getContext("2d");
+        this.canvasMultiplier = 1;
         if(!this.context){
             alert("请更新你的浏览器");
             return;
         }
         this.setupInput();
-        this.setBoard(4,new TouchControls());
+        if(this.mobile)this.setBoard(4,new TouchControls());
         this.loop();
         spriteSheet.load(spriteData,callback);
     };
@@ -69,6 +72,25 @@ var game = new function(){
     }
     this.setBoard = function(num,board){
         boards[num] = board;
+    }
+    this.setupMobile = function(){
+        var container = $("#container")[0];
+        var hasTouch = !!('ontouchstart' in window);
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        if(hasTouch)this.mobile = true;
+        if(screen.width >= 1280 || !hasTouch)return false;
+        if(width > height){
+            alert("请旋转设备，然后单击ok");
+            width = window.innerWidth;
+            height = window.innerHeight;
+        }
+        this.canvas.style.position = "absolute";
+        this.canvas.style.left = '0px';
+        this.canvas.style.top = "0px";
+        log(this.canvas);
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
     }
 }
 function GameBoard(){
@@ -214,7 +236,7 @@ Level.prototype.step = function(dt) {
 
     this.drawSquare = function(context,x,y,txt,on){
         context.globalAlpha = on ? 0.9 : 0.6;
-        context.fillStyle = "#CCC";        
+        context.fillStyle = "#CCC";
         context.fillRect(x,y,blockWidth,blockWidth);
         context.fillStyle = "FFF";
         context.textAlign = "center";
@@ -288,32 +310,16 @@ Level.prototype.step = function(dt) {
         }
     }
     this.getTouchType = function(x,y){
-        if(
-            x >= leftX && x <= leftX + unitWidth && 
-            y >= leftY && y <= leftY + unitWidth
-        ){
+        if(x >= leftX && x <= leftX + unitWidth && y >= leftY && y <= leftY + unitWidth)
             return "left";
-        }else if(
-            x >= topX && x <= topX + unitWidth && 
-            y >= topY && y <= topY + unitWidth
-        ){
+        else if(x >= topX && x <= topX + unitWidth && y >= topY && y <= topY + unitWidth)
             return "top";
-        }else if(
-            x >= rightX && x <= rightX + unitWidth && 
-            y >= rightY && y <= rightY + unitWidth
-        ){
+        else if(x >= rightX && x <= rightX + unitWidth && y >= rightY && y <= rightY + unitWidth)
             return "right";
-        }else if(
-            x >= bottomX && x <= bottomX + unitWidth && 
-            y >= bottomY && y <= bottomY + unitWidth
-        ){
+        else if(x >= bottomX && x <= bottomX + unitWidth && y >= bottomY && y <= bottomY + unitWidth)
             return "bottom";
-        }else if(
-            x >= fireX && x <= fireX + unitWidth && 
-            y >= fireY && y <= fireY + unitWidth
-        ){
+        else if(x >= fireX && x <= fireX + unitWidth && y >= fireY && y <= fireY + unitWidth)
             return "fire";
-        }
     }
     game.canvas.addEventListener("touchstart",this.trackTouch);
     game.canvas.addEventListener("touchmove",this.trackTouch);
