@@ -174,7 +174,10 @@ Enemy.prototype.baseParameters = {
     F : 0,
     G : 0,
     H : 0,
-    t : 0
+    t : 0,
+    firePercentage : 0.01,
+    reloadTime: 0.75,
+    reload : 0
 }
 Enemy.prototype.step = function(dt){
     this.t += dt;
@@ -188,7 +191,18 @@ Enemy.prototype.step = function(dt){
         collision.hit(this.damege);
         this.board.remove(this);
         this.board.add(new Explosion(this.x + this.w / 2 , this.y + this.h /2 ));
-    }else if(this.y > game.height || this.x < -this.w || this.x > game.width){
+    }
+    if(this.reload <= 0 && Math.random() < this.firePercentage){
+        this.relaod = this.reloadTime;
+        if(this.missiles == 2){
+            this.board.add(new EnemyMissile(this.x + this.w , this.y + this.h / 2));
+            this.board.add(new EnemyMissile(this.x , this.y + this.h / 2));
+        }else{
+            this.board.add(new EnemyMissile(this.x + this. w / 2 , this.y + this.h));
+        }
+    }
+    this.reload -= dt;
+    if(this.y > game.height || this.x < -this.w || this.x > game.width){
         this.board.remove(this);
     }
 };
@@ -198,6 +212,24 @@ Enemy.prototype.hit = function(damage){
         if(this.board.remove(this)){
             this.board.add(new Explosion(this.x + this.w / 2 , this.y + this.h /2 ));
         }
+    }
+}
+
+function EnemyMissile(x,y){
+    this.setup('enemyMissile',{vy : 200 , damage : 10});
+    this.x = x - this.w / 2;
+    this.y = y;
+}
+EnemyMissile.prototype = new Sprite();
+EnemyMissile.prototype.type = data.OBJECT_ENEMY_PROJECTILE;
+EnemyMissile.prototype.step = function(dt){
+    this.y += this.vy * dt;
+    var collision = this.board.collide(this,data.OBJECT_PLAYER);
+    if(collision){
+        collision.hit(this.damage);
+        this.board.remove(this);
+    }else if(this.y > game.height){
+        this.board.remove(this);
     }
 }
 

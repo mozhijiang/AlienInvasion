@@ -325,5 +325,5 @@ Level.prototype.step = function(dt) {
     game.canvas.addEventListener("touchstart",this.trackTouch);
     game.canvas.addEventListener("touchmove",this.trackTouch);
     game.canvas.addEventListener("touchend",this.trackTouch);
-};
+  };
 game.setupInput();
